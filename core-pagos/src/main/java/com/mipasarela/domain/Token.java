@@ -21,4 +21,5 @@ public class Token {
     private String brand;
     private String status;
     private LocalDateTime createdAt;
+    private String tokenValue;
 }
