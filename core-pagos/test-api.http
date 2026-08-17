@@ -1,0 +1,48 @@
+### Variables Globales
+@baseUrl = http://localhost:8080/api/v1
+# Reemplaza los valores con IDs que existan en tu base de datos MySQL local
+@merchantId = 1
+@customerId = 1
+@tokenValue = "tok_live_784af75cf8934ad5"
+
+
+### 1. Prueba de Petición HTTP POST: Procesar Pago Exitoso
+POST {{baseUrl}}/payments
+Content-Type: application/json
+X-Idempotency-Key: KEY-TEST-HTTP-001
+
+{
+    "merchantId": {{merchantId}},
+    "customerId": {{customerId}},
+    "tokenValue": {{tokenValue}},
+    "amount": 25000.50,
+    "currency": "ARS"
+}
+
+
+### 2. Prueba de Idempotencia, Doble Cobro, ejecutamos esta despues de la primera
+# La idea es que devuelva el mismo código de transacción que el paso 1, sin duplicar en MySQL.
+POST {{baseUrl}}/payments
+Content-Type: application/json
+X-Idempotency-Key: KEY-TEST-HTTP-001
+
+{
+    "merchantId": {{merchantId}},
+    "customerId": {{customerId}},
+    "tokenValue": {{tokenValue}},
+    "amount": 25000.50,
+    "currency": "ARS"
+}
+
+
+### 3. Prueba de Error, Comercio Inexistente (404).
+POST {{baseUrl}}/payments
+Content-Type: application/json
+
+{
+    "merchantId": 99999,
+    "customerId": {{customerId}},
+    "tokenValue": {{tokenValue}},
+    "amount": 100.00,
+    "currency": "ARS"
+}

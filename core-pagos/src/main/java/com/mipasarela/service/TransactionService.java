@@ -11,6 +11,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class TransactionService {
 
     // Inyección de dependencia a través de la Interfaz

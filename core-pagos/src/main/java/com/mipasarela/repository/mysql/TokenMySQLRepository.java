@@ -13,6 +13,9 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+import org.springframework.stereotype.Repository;
+
+@Repository
 public class TokenMySQLRepository implements TokenRepository {
 
     @Override
