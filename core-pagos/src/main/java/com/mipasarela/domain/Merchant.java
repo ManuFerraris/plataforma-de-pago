@@ -18,7 +18,7 @@ public class Merchant {
     private String fantasyName;
     private String cuit;
     private String categoryCode;
-    private String direction;
+    private String address;
     private String postalCode;
     private String email;
     private String phone;
