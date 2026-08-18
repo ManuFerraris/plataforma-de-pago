@@ -1,13 +1,13 @@
 package com.mipasarela.repository;
 
 import com.mipasarela.domain.Token;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface TokenRepository {
-    Token save(Token token);
-
-    Optional<Token> findById(Long id);
-
-    Optional<Token> findByTokenValue(String tokenValue); // Para buscar por el hash/string del token
+@Repository
+public interface TokenRepository extends JpaRepository<Token, Long> {
+    
+    Optional<Token> findByTokenValue(String tokenValue);
 }

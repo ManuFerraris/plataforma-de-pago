@@ -1,5 +1,7 @@
 package com.mipasarela.controller;
 
+import jakarta.validation.Valid;
+
 import com.mipasarela.domain.Customer;
 import com.mipasarela.domain.Merchant;
 import com.mipasarela.domain.Token;
@@ -40,7 +42,7 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<PaymentResponseDTO> processPayment(
             @RequestHeader(value = "X-Idempotency-Key", required = false) String idempotencyKey,
-            @RequestBody PaymentRequestDTO request) {
+            @Valid @RequestBody PaymentRequestDTO request) {
         // 1. Validar existencia de las entidades requeridas
         Optional<Merchant> merchantOpt = merchantRepository.findById(request.getMerchantId());
         if (merchantOpt.isEmpty()) {

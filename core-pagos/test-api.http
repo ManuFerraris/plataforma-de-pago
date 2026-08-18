@@ -3,7 +3,7 @@
 # Reemplaza los valores con IDs que existan en tu base de datos MySQL local
 @merchantId = 1
 @customerId = 1
-@tokenValue = "tok_live_784af75cf8934ad5"
+@tokenValue = "tok_live_desktop_998877665544"
 
 
 ### 1. Prueba de Petición HTTP POST: Procesar Pago Exitoso
@@ -45,4 +45,17 @@ Content-Type: application/json
     "tokenValue": {{tokenValue}},
     "amount": 100.00,
     "currency": "ARS"
+}
+
+### 4. Prueba defensiva: JSON mal formado y monto negativo
+POST {{baseUrl}}/payments
+Content-Type: application/json
+X-Idempotency-Key: KEY-HACK-001
+
+{
+  "merchantId": null,
+  "customerId": {{customerId}},
+  "tokenValue": "",
+  "amount": -5000,
+  "currency": "ARS"
 }

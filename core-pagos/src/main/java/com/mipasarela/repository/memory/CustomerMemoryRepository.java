@@ -1,5 +1,0 @@
-package com.mipasarela.repository.memory;
-
-public class CustomerMemoryRepository {
-    // Pendiente (no era necesaria).
-}

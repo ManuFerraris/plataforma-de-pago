@@ -1,13 +1,14 @@
 package com.mipasarela.repository;
 
+import com.mipasarela.domain.Merchant;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
-import com.mipasarela.domain.Merchant;
-
-public interface MerchantRepository {
-    Merchant save(Merchant merchant);
-
-    Optional<Merchant> findById(Long id);
-
+@Repository
+public interface MerchantRepository extends JpaRepository<Merchant, Long> {
+    
     Optional<Merchant> findByCuit(String cuit);
+    Optional<Merchant> findByApiKey(String apiKey);
 }
