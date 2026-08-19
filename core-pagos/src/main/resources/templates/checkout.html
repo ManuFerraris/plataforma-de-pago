@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasarela de Pagos - Checkout Simulator</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 400px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 14px; }
+        input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #0056b3; }
+        #responseArea { margin-top: 20px; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 13px; display: none; word-wrap: break-word; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2 style="text-align: center; margin-top: 0;">$ Simulador de Pagos $</h2>
+    
+    <form id="paymentForm">
+        <div class="form-group">
+            <label>ID del Comercio</label>
+            <input type="number" id="merchantId" value="1" required>
+        </div>
+        <div class="form-group">
+            <label>ID del Cliente</label>
+            <input type="number" id="customerId" value="1" required>
+        </div>
+        <div class="form-group">
+            <label>Token de la Tarjeta</label>
+            <input type="text" id="tokenValue" value="tok_live_desktop_998877665544" required>
+        </div>
+        <div class="form-group">
+            <label>Monto a Cobrar (ARS)</label>
+            <input type="number" step="0.01" id="amount" value="15000.50" required>
+        </div>
+        
+        <button type="submit" id="submitBtn">Pagar Ahora</button>
+    </form>
+
+    <div id="responseArea"></div>
+</div>
+
+<script>
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        e.preventDefault(); // Evito que la página se recargue al enviar el formulario
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const responseArea = document.getElementById('responseArea');
+        
+        // Capturo los datos del formulario
+        const requestData = {
+            merchantId: document.getElementById('merchantId').value,
+            customerId: document.getElementById('customerId').value,
+            tokenValue: document.getElementById('tokenValue').value,
+            amount: document.getElementById('amount').value,
+            currency: "ARS"
+        };
+
+        // Generacion de una clave de idempotencia única para esta petición
+        const idempotencyKey = "UI-REQ-" + Date.now();
+
+        submitBtn.innerText = "Procesando...";
+        submitBtn.disabled = true;
+        responseArea.style.display = "none";
+
+        // Comunicacion del Frontend con nuestra API REST
+        fetch('/api/v1/payments', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Idempotency-Key': idempotencyKey
+            },
+            body: JSON.stringify(requestData)
+        })
+        .then(async response => {
+            const data = await response.json();
+            responseArea.style.display = "block";
+            
+            if (response.ok) {
+                responseArea.className = "success";
+                responseArea.innerHTML = `<strong>[OK] ¡Pago Exitoso!</strong><br>
+                                          ID Transacción: ${data.transactionId}<br>
+                                          Estado: ${data.status}<br>
+                                          Monto: ${data.currency} ${data.amount}`;
+            } else {
+                responseArea.className = "error";
+                responseArea.innerHTML = `<strong>[ERROR] Error de Validación</strong><br>
+                                          <pre style="margin:0;">${JSON.stringify(data.detalles || data, null, 2)}</pre>`;
+            }
+        })
+        .catch(error => {
+            responseArea.style.display = "block";
+            responseArea.className = "error";
+            responseArea.innerHTML = `<strong>[CRITICAL ERROR] Error Crítico de Red</strong><br>${error.message}`;
+        })
+        .finally(() => {
+            submitBtn.innerText = "Pagar Ahora";
+            submitBtn.disabled = false;
+        });
+    });
+</script>
+
+</body>
+</html>
