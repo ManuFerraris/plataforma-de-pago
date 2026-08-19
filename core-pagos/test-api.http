@@ -9,13 +9,13 @@
 ### 1. Prueba de Petición HTTP POST: Procesar Pago Exitoso
 POST {{baseUrl}}/payments
 Content-Type: application/json
-X-Idempotency-Key: KEY-TEST-HTTP-001
+X-Idempotency-Key: KEY-TEST-HTTP-002
 
 {
     "merchantId": {{merchantId}},
     "customerId": {{customerId}},
     "tokenValue": {{tokenValue}},
-    "amount": 25000.50,
+    "amount": 33000.00,
     "currency": "ARS"
 }
 

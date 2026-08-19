@@ -1,5 +1,6 @@
 package com.mipasarela.service;
 
+import lombok.extern.slf4j.Slf4j;
 import com.mipasarela.domain.Customer;
 import com.mipasarela.domain.Merchant;
 import com.mipasarela.domain.Token;
@@ -14,23 +15,23 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class TransactionService {
 
-    // Inyección de dependencia a través de la Interfaz
     private final TransactionRepository transactionRepository;
+    private final WebhookService webhookService;
 
-    public TransactionService(TransactionRepository transactionRepository) {
+    public TransactionService(TransactionRepository transactionRepository, WebhookService webhookService) {
         this.transactionRepository = transactionRepository;
+        this.webhookService = webhookService;
     }
 
     // Procesar un intento de cobro aplicando las reglas de negocio.
-    public Transaction processPayment(
-            Merchant merchant,
-            Customer customer,
-            Token token,
-            BigDecimal amount,
-            String currency,
-            String idempotencyKey) {
+    public Transaction processPayment( Merchant merchant, Customer customer,
+        Token token, BigDecimal amount,
+        String currency, String idempotencyKey) {
+            
+        log.info("Iniciando TransactionService...");
         // Regla 1: Control de Idempotencia (Esta transacción ya fue procesada?)
         if (idempotencyKey != null && !idempotencyKey.isBlank()) {
             Optional<Transaction> existingTx = transactionRepository.findByIdempotencyKey(idempotencyKey);
@@ -66,6 +67,11 @@ public class TransactionService {
         transaction.setUpdatedAt(LocalDateTime.now());
 
         // Regla 4: Guardar en el repositorio en memoria o MySQL
-        return transactionRepository.save(transaction);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+        if (savedTransaction == null) {
+            throw new RuntimeException("Error al guardar la transacción en el repositorio.");
+        };
+        webhookService.notifyMerchant(savedTransaction);
+        return savedTransaction;
     }
 }
